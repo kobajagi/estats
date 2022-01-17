@@ -16,8 +16,8 @@ func LoadAvgProvider() *LoadAvg {
 	return &LoadAvg{}
 }
 
-// Read fetches load avarage statistics.
-func (p *LoadAvg) Read() (map[string]string, error) {
+// Read reads load average.
+func (p *LoadAvg) Read() ([]Stat, error) {
 	if p.f == nil {
 		f, err := os.Open(PathLoadAvg)
 		if err != nil {
@@ -42,21 +42,23 @@ func (p *LoadAvg) Read() (map[string]string, error) {
 
 // parse parses content of /proc/loadavg file
 func (p *LoadAvg) parse(input []byte) (
-	map[string]string,
+	[]Stat,
 	error,
 ) {
 	splits := strings.Split(string(input), " ")
-	// We will only take first 3, others may be os/kernel specific.
 	if len(splits) < 3 {
 		return nil, errors.New("parser: malformed /proc/loadavg")
 	}
 
-	output := map[string]string{}
+	stats := make([]Stat, 0, 3)
 	keys := []string{"1m", "5m", "15m"}
 
 	for index, field := range splits[:3] {
-		output["loadavg."+keys[index]] = field
+		stats = append(stats, Stat{
+			Name:   "loadavg " + keys[index],
+			Metric: field,
+		})
 	}
 
-	return output, nil
+	return stats, nil
 }

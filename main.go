@@ -61,6 +61,7 @@ func main() {
 	p := NewPoller(
 		stats.LoadAvgProvider(),
 		stats.CpuUsageProvider(),
+		stats.MemUsageProvider(),
 	)
 	p.Run(*interval)
 

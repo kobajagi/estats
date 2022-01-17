@@ -7,7 +7,13 @@ import (
 
 // Provider collects a single type of statistic.
 type Provider interface {
-	Read() (map[string]string, error)
+	Read() ([]Stat, error)
+}
+
+// Stat is a single metric.
+type Stat struct {
+	Name   string `json:"name"`
+	Metric string `json:"metric"`
 }
 
 // reads proc file content, reseting pointer aferwards.

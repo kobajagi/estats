@@ -10,8 +10,13 @@ import (
 )
 
 type Result struct {
-	data map[string]string
+	data []stats.Stat
 	err  error
+}
+
+type Report struct {
+	Timestamp int64        `json:"timestamp"`
+	Metrics   []stats.Stat `json:"metrics"`
 }
 
 type Poller struct {
@@ -19,7 +24,7 @@ type Poller struct {
 }
 
 func NewPoller(p ...stats.Provider) *Poller {
-	return &Poller{}
+	return &Poller{providers: p}
 }
 
 func (p *Poller) Run(interval int) {
@@ -38,20 +43,20 @@ func (p *Poller) Poll() {
 
 	// output writer
 	go func(c <-chan *Result) {
-		output := map[string]string{}
-
+		report := Report{
+			Timestamp: time.Now().UTC().Unix(),
+			Metrics:   []stats.Stat{},
+		}
 		for result := range c {
 			if result.err != nil {
 				fmt.Fprintln(os.Stderr, result.err)
 				continue
 			}
 
-			for k, v := range result.data {
-				output[k] = v
-			}
+			report.Metrics = append(report.Metrics, result.data...)
 		}
 
-		fmt.Println(output)
+		fmt.Println(report)
 	}(outputChan)
 
 	// concurent execution of stats providers
