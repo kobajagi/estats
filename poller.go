@@ -15,6 +15,8 @@ type Result struct {
 	err  error
 }
 
+// Poller is core part of application.
+// Spawns metrics collectors.
 type Poller struct {
 	providers []stats.Provider
 	writer    output.OutputWriter
@@ -27,6 +29,8 @@ func NewPoller(p ...stats.Provider) *Poller {
 	}
 }
 
+// Run starts (endless) polling process.
+// No graceful shutdown needed as there is no state to preserve.
 func (p *Poller) Run(interval int) {
 	ticker := time.NewTicker(time.Duration(interval) * time.Second)
 
@@ -36,6 +40,9 @@ func (p *Poller) Run(interval int) {
 	}
 }
 
+// Poll collects OS stats once.
+// Spawned goroutines are shortlived as polling interval is
+// fairly long (min 1 second) thus no perf to gain.
 func (p *Poller) Poll() {
 	outputChan := make(chan *Result, len(p.providers))
 	wg := sync.WaitGroup{}
