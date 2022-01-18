@@ -31,8 +31,8 @@ func CpuUsageProvider() *CpuUsage {
 }
 
 // Read calculates (total) CPU usage.
-// Usage is calculated in a delta between current and previous
-// polls.
+// Usage is calculated using delta between current and previous
+// read.
 func (p *CpuUsage) Read() ([]Stat, error) {
 	if p.f == nil {
 		f, err := os.Open(PathStat)
@@ -47,7 +47,6 @@ func (p *CpuUsage) Read() ([]Stat, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	cpu, err := p.parse(content)
 	if err != nil {
 		return nil, err
@@ -55,7 +54,6 @@ func (p *CpuUsage) Read() ([]Stat, error) {
 
 	total := cpu.User + cpu.System + cpu.Idle
 	used := cpu.User + cpu.System
-
 	usage := int(math.Round(
 		float64((used - p.histUsed) * 100 / (total - p.histTotal)),
 	))
@@ -71,8 +69,6 @@ func (p *CpuUsage) Read() ([]Stat, error) {
 }
 
 // parse parses CPU stats from /proc/stat file.
-// Field order is:
-// user, nice, system, idle, iowait, irq, softirq, steal.
 func (p *CpuUsage) parse(input []byte) (
 	*CpuProfile,
 	error,
@@ -90,6 +86,7 @@ func (p *CpuUsage) parse(input []byte) (
 		if err != nil {
 			return nil, err
 		}
+
 		if name == "cpu" {
 			cpu.User = user
 			cpu.System = system
@@ -97,11 +94,16 @@ func (p *CpuUsage) parse(input []byte) (
 			break
 		}
 	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
 
 	return &cpu, nil
 }
 
 // parseLine parses one cpu line from /proc/stat.
+// Field order is:
+// cpu name, user, nice, system, idle, iowait, irq, softirq, steal.
 func (p *CpuUsage) parseLine(line string) (
 	cpu string,
 	user, system, idle uint64,
@@ -110,24 +112,25 @@ func (p *CpuUsage) parseLine(line string) (
 	pattern := regexp.MustCompile(`\s+`)
 	line = pattern.ReplaceAllString(line, " ")
 	splits := strings.Split(line, " ")
-
 	if len(splits) < 8 {
-		err = errors.New("parser: malformed /proc/stat")
+		err = errors.New("unsupported format of /proc/stat")
 		return
 	}
 
 	cpu = splits[0]
 	user, err = strconv.ParseUint(splits[1], 10, 64)
 	if err != nil {
+		err = fmt.Errorf("CpuUsage.parseLine: %w", err)
 		return
 	}
 	system, err = strconv.ParseUint(splits[3], 10, 64)
 	if err != nil {
+		err = fmt.Errorf("CpuUsage.parseLine: %w", err)
 		return
 	}
 	idle, err = strconv.ParseUint(splits[4], 10, 64)
 	if err != nil {
-		return
+		err = fmt.Errorf("CpuUsage.parseLine: %w", err)
 	}
 
 	return

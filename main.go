@@ -58,11 +58,17 @@ func main() {
 		os.Exit(2)
 	}
 
-	p := NewPoller(
+	providers := []stats.Provider{
 		stats.LoadAvgProvider(),
 		stats.CpuUsageProvider(),
 		stats.MemUsageProvider(),
-	)
+	}
+
+	if *net != "" {
+		providers = append(providers, stats.NetUsageProvider(*net))
+	}
+
+	p := NewPoller(providers...)
 	p.Run(*interval)
 
 	fmt.Println(*disc, *net)

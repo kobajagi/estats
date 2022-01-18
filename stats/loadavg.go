@@ -32,9 +32,17 @@ func (p *LoadAvg) Read() ([]Stat, error) {
 		return nil, err
 	}
 
-	stats, err := p.parse(content)
+	lavg, err := p.parse(content)
 	if err != nil {
 		return nil, err
+	}
+
+	stats := make([]Stat, 0, len(lavg))
+	for k, v := range lavg {
+		stats = append(stats, Stat{
+			Name:   "loadavg " + k,
+			Metric: v,
+		})
 	}
 
 	return stats, nil
@@ -42,7 +50,7 @@ func (p *LoadAvg) Read() ([]Stat, error) {
 
 // parse parses content of /proc/loadavg file
 func (p *LoadAvg) parse(input []byte) (
-	[]Stat,
+	map[string]string,
 	error,
 ) {
 	splits := strings.Split(string(input), " ")
@@ -50,15 +58,12 @@ func (p *LoadAvg) parse(input []byte) (
 		return nil, errors.New("parser: malformed /proc/loadavg")
 	}
 
-	stats := make([]Stat, 0, 3)
+	lavg := map[string]string{}
 	keys := []string{"1m", "5m", "15m"}
 
 	for index, field := range splits[:3] {
-		stats = append(stats, Stat{
-			Name:   "loadavg " + keys[index],
-			Metric: field,
-		})
+		lavg[keys[index]] = field
 	}
 
-	return stats, nil
+	return lavg, nil
 }

@@ -83,6 +83,9 @@ func (p *MemUsage) parse(input []byte) (
 			mem.Available = value
 		}
 	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
 
 	return &mem, nil
 }
@@ -97,7 +100,7 @@ func (p *MemUsage) parseLine(line string) (
 	line = pattern.ReplaceAllString(line, " ")
 	splits := strings.Split(line, " ")
 	if len(splits) < 2 {
-		err = errors.New("parser: malformed /proc/meminfo")
+		err = errors.New("usupported format of /proc/meminfo")
 		return
 	}
 

@@ -12,8 +12,8 @@ type Provider interface {
 
 // Stat is a single metric.
 type Stat struct {
-	Name   string `json:"name"`
-	Metric string `json:"metric"`
+	Name   string      `json:"name"`
+	Metric interface{} `json:"metric"`
 }
 
 // reads proc file content, reseting pointer aferwards.

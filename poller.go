@@ -59,7 +59,7 @@ func (p *Poller) Poll() {
 		fmt.Println(report)
 	}(outputChan)
 
-	// concurent execution of stats providers
+	// concurent execution of metric providers
 	for _, provider := range p.providers {
 		go func(c chan<- *Result, provider stats.Provider) {
 			data, err := provider.Read()
