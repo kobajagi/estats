@@ -30,17 +30,17 @@ func main() {
 		flag.PrintDefaults()
 	}
 
-	var interval = flag.Int(
+	interval := flag.Int(
 		"i",
 		5,
 		"interval in seconds at which to poll",
 	)
-	var disc = flag.String(
+	path := flag.String(
 		"p",
 		"",
 		"partition to poll",
 	)
-	var net = flag.String(
+	net := flag.String(
 		"n",
 		"",
 		"network interface to poll",
@@ -68,8 +68,10 @@ func main() {
 		providers = append(providers, stats.NetUsageProvider(*net))
 	}
 
+	if *path != "" {
+		providers = append(providers, stats.DiskUsageProvider(*path))
+	}
+
 	p := NewPoller(providers...)
 	p.Run(*interval)
-
-	fmt.Println(*disc, *net)
 }

@@ -54,16 +54,14 @@ func (p *CpuUsage) Read() ([]Stat, error) {
 
 	total := cpu.User + cpu.System + cpu.Idle
 	used := cpu.User + cpu.System
-	usage := int(math.Round(
-		float64((used - p.histUsed) * 100 / (total - p.histTotal)),
-	))
+	usage := math.Round(float64(used-p.histUsed) * 100 / float64(total-p.histTotal))
 	p.histTotal = total
 	p.histUsed = used
 
 	return []Stat{
 		{
 			Name:   "cpu usage",
-			Metric: fmt.Sprintf("%d%%", usage),
+			Metric: int(usage),
 		},
 	}, nil
 }
