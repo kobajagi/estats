@@ -25,12 +25,11 @@ func (p *DiskUsage) Read() ([]Stat, error) {
 		return nil, err
 	}
 
-	fmt.Println(disk.Size, disk.Available)
 	usage := math.Round(float64((disk.Size - disk.Available) * 100 / disk.Size))
 
 	return []Stat{
 		{
-			Name:   "disk usage",
+			Name:   "disk usage (%)",
 			Metric: int(usage),
 		},
 	}, nil

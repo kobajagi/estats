@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"fmt"
 	"math"
 	"os"
 	"regexp"
@@ -47,14 +46,12 @@ func (p *MemUsage) Read() ([]Stat, error) {
 		return nil, err
 	}
 
-	usage := int(math.Round(
-		float64((mem.Total - mem.Available) * 100 / mem.Total),
-	))
+	usage := math.Round(float64(mem.Total-mem.Available) * 100 / float64(mem.Total))
 
 	return []Stat{
 		Stat{
-			Name:   "memory usage",
-			Metric: fmt.Sprintf("%d%%", usage),
+			Name:   "memory usage (%)",
+			Metric: int(usage),
 		},
 	}, nil
 }

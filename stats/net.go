@@ -52,11 +52,11 @@ func (p *NetUsage) Read() ([]Stat, error) {
 
 	stats := []Stat{
 		Stat{
-			Name:   "bytes downloaded",
+			Name:   "download (bytes)",
 			Metric: net.ReceiveBytes,
 		},
 		Stat{
-			Name:   "bytes uploaded",
+			Name:   "upload (bytes)",
 			Metric: net.TransmitBytes,
 		},
 	}

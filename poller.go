@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kobajagi/estats/output"
 	"github.com/kobajagi/estats/stats"
 )
 
@@ -14,17 +15,16 @@ type Result struct {
 	err  error
 }
 
-type Report struct {
-	Timestamp int64        `json:"timestamp"`
-	Metrics   []stats.Stat `json:"metrics"`
-}
-
 type Poller struct {
 	providers []stats.Provider
+	writer    output.OutputWriter
 }
 
 func NewPoller(p ...stats.Provider) *Poller {
-	return &Poller{providers: p}
+	return &Poller{
+		providers: p,
+		writer:    output.JsonWriter{},
+	}
 }
 
 func (p *Poller) Run(interval int) {
@@ -43,7 +43,7 @@ func (p *Poller) Poll() {
 
 	// output writer
 	go func(c <-chan *Result) {
-		report := Report{
+		report := output.Report{
 			Timestamp: time.Now().UTC().Unix(),
 			Metrics:   []stats.Stat{},
 		}
@@ -56,7 +56,7 @@ func (p *Poller) Poll() {
 			report.Metrics = append(report.Metrics, result.data...)
 		}
 
-		fmt.Println(report)
+		p.writer.Write(report)
 	}(outputChan)
 
 	// concurent execution of metric providers

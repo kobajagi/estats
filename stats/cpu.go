@@ -60,7 +60,7 @@ func (p *CpuUsage) Read() ([]Stat, error) {
 
 	return []Stat{
 		{
-			Name:   "cpu usage",
+			Name:   "cpu usage (%)",
 			Metric: int(usage),
 		},
 	}, nil
