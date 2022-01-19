@@ -38,6 +38,8 @@ If `-n` or `-p` options are not specified, corresponding metrics will not print.
 
 Tool output is in (compact) JSON format, piped through `jq` it looks like this (single poll):
 
+```$ ./estats -n wlp2s0 -i 1 -p /home | jq```
+
 ```json
 {
   "timestamp": 1642633633,
@@ -77,3 +79,5 @@ Tool output is in (compact) JSON format, piped through `jq` it looks like this (
   ]
 }
 ```
+
+Errors during polling are printed to `stderr` and do not stop the polling process. Stop tool using `CTRL+c`.
