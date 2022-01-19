@@ -42,7 +42,7 @@ func (p *Poller) Run(interval int) {
 
 // Poll collects OS stats once.
 // Spawned goroutines are shortlived as polling interval is
-// fairly long (min 1 second) thus no perf to gain.
+// fairly long (min 1 second) thus no perf gain for workpool.
 func (p *Poller) Poll() {
 	outputChan := make(chan *Result, len(p.providers))
 	wg := sync.WaitGroup{}

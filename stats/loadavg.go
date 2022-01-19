@@ -3,8 +3,11 @@ package stats
 import (
 	"errors"
 	"os"
+	"regexp"
 	"strings"
 )
+
+var RegexLoadAvg = regexp.MustCompile(`[0-9]*\.[0-9]{2}`)
 
 const PathLoadAvg = "/proc/loadavg"
 
@@ -62,6 +65,9 @@ func (p *LoadAvg) parse(input []byte) (
 	keys := []string{"1m", "5m", "15m"}
 
 	for index, field := range splits[:3] {
+		if !RegexLoadAvg.MatchString(field) {
+			return nil, errors.New("parser: malformed /proc/loadavg")
+		}
 		lavg[keys[index]] = field
 	}
 

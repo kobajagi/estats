@@ -74,12 +74,14 @@ func (p *CpuUsage) parse(input []byte) (
 	var cpu CpuProfile
 	buf := bytes.NewBuffer(input)
 	scanner := bufio.NewScanner(buf)
+	found := false
 	for scanner.Scan() {
 		line := scanner.Text()
 		if !strings.HasPrefix(line, "cpu") {
 			continue
 		}
 
+		found = true
 		name, user, system, idle, err := p.parseLine(line)
 		if err != nil {
 			return nil, err
@@ -94,6 +96,9 @@ func (p *CpuUsage) parse(input []byte) (
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
+	}
+	if !found {
+		return nil, errors.New("unsupported format of /proc/stat")
 	}
 
 	return &cpu, nil
