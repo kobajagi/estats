@@ -2,7 +2,6 @@
 
 A CLI tool which polls:
 - Load average values
-
 - Derived CPU percentage values
 - Network interface statistics
 - Disk partition usage in percent
